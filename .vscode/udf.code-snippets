@@ -1,0 +1,10 @@
+{
+  "route_get_and_post": {
+    "prefix": "route_get_and_post",
+    "body": "import 'package:dart_frog/dart_frog.dart';\nimport '../../shared/util/db.dart';\n\nFuture<Response> onRequest(RequestContext context) async {\nfinal request = context.request;\nfinal method = request.method;\nif (method == HttpMethod.get) return getRequest(context);\nif (method == HttpMethod.post) return postRequest(context);\nreturn Response.json(body: {\n\"message\": \"Invalid route\",\n});\n}\n\nFuture<Response> getRequest(RequestContext context) async {\nfinal products = await DB.select('products');\nreturn Response.json(\nbody: {\n\"count\": products.length,\n\"data\": products,\n},\n);\n}\n\nFuture<Response> postRequest(RequestContext context) async {\nfinal request = context.request;\nfinal data = await request.json();\nawait DB.insert('products', data as Map<String, dynamic>);\nreturn Response.json(\nbody: {\n\"message\": \"Success\",\n},\n);\n}"
+  },
+  "route_put_and_delete": {
+    "prefix": "route_put_and_delete",
+    "body": "\nimport 'package:dart_frog/dart_frog.dart';\nimport '../../shared/util/db.dart';\n\nFuture<Response> onRequest(RequestContext context, String id) async {\nfinal request = context.request;\nfinal method = request.method;\nif (method == HttpMethod.put) return putRequest(context, id);\nif (method == HttpMethod.delete) return deleteRequest(context, id);\nreturn Response.json(body: {\n\"message\": \"Invalid route\",\n});\n}\n\nFuture<Response> putRequest(RequestContext context, String id) async {\nfinal request = context.request;\nfinal data = await request.json();\nawait DB.update(\n'products',\ndata as Map<String, dynamic>,\nwhere: \"id = ?\",\nwhereArgs: [id],\n);\nreturn Response.json(\nbody: {\n\"message\": \"Success\",\n},\n);\n}\n\nFuture<Response> deleteRequest(RequestContext context, String id) async {\nawait DB.delete(\n'products',\nwhere: \"id = ?\",\nwhereArgs: [id],\n);\nreturn Response.json(\nbody: {\n\"message\": \"Success\",\n},\n);\n}"
+  }
+}
